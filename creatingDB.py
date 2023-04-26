@@ -92,29 +92,27 @@ c.execute("""CREATE TABLE shipment_belongs_to (
 
 
 # create views
-# c.execute("""CREATE VIEW cutomerView AS (
-#                 SELECT 
-#                     shipment.shipment_id, 
-#                     shipment.status, 
-#                     shipment.deliveryTime,
-#                     shipment_belongs_to.locker_id, 
-#                     locker.pickbox_id, 
-#                     shipment_belongs_to.store_id, 
-#                     online_store.name, 
-#                     unregistered_customer.phone
-#                 FROM 
-#                     shipment, 
-#                     shipment_belongs_to, 
-#                     online_store, 
-#                     pickbox, 
-#                     locker, 
-#                     unregistered_customer  
-#                 WHERE 
-#                     (shipment.shipment_id = shipment_belongs_to.shipment_id) and   
-#                     (shipment.customer_id = unregistered_customer.customer_id) and 
-#                     (shipment_belongs_to.store_id = online_store.store_id) and 
-#                     (shipment_belongs_to.locker_id = locker.locker_id)
-#                 )""")
+c.execute("""CREATE VIEW customerView AS
+                SELECT 
+                    shipment.shipment_id, 
+                    shipment.status, 
+                    shipment.deliveryTime,
+                    shipment_belongs_to.locker_id, 
+                    locker.pickbox_id, 
+                    online_store.store_name, 
+                    unregistered_customer.phone
+                FROM 
+                    shipment, 
+                    shipment_belongs_to, 
+                    online_store, 
+                    locker, 
+                    unregistered_customer  
+                WHERE 
+                    shipment.shipment_id = shipment_belongs_to.shipment_id AND   
+                    shipment.customer_id = unregistered_customer.customer_id AND 
+                    shipment_belongs_to.store_id = online_store.store_id AND 
+                    shipment_belongs_to.locker_id = locker.locker_id
+                """)
 
 
 # #insert initial info
@@ -156,11 +154,11 @@ c.execute("""INSERT INTO locker VALUES (1130, 'Empty', 'A', 22),
                                         (1206, 'Occupied', 'A', 23),
                                         (1207, 'Empty', 'A', 23)""") 
 
-c.execute("""INSERT INTO unregistered_customer VALUES (100001,966555411384),
-                                                    (100002,966580688210),
-                                                    (100003,966507095266),
-                                                    (100004,966552495419),
-                                                    (100005,966554587433)""") 
+c.execute("""INSERT INTO unregistered_customer VALUES (1,966555411384),
+                                                    (2,966580688210),
+                                                    (3,966507095266),
+                                                    (4,966552495419),
+                                                    (5,966554587433)""") 
 
 c.execute("""INSERT INTO registered_customer VALUES (1,'yaseer', 'Ashraf', 'Alharbi', 'yaseer@gmail.com', 'yaseerAshraf' ,'###'),
                                                     (2,'Jacob', 'Hassan', 'Qiza', 'Jacob@hotmail.com', 'Jacob12' ,'###'),
@@ -196,6 +194,8 @@ conn.commit()
 conn.close()
 
 print("Created Database successfully")
+
+
 
 
 
