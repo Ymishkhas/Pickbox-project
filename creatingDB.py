@@ -135,13 +135,13 @@ c.execute("""INSERT INTO store_deliver_to VALUES (107,20),
                                                 (107,22),
                                                 (107,25)""") 
 
-c.execute("""INSERT INTO locker VALUES (1130, 'Empty', 'A', 22),
+c.execute("""INSERT INTO locker VALUES (1130, 'Occupied', 'A', 22),
                                         (1131, 'Empty', 'A', 22),
                                         (1132, 'Occupied', 'A', 22),
-                                        (1004, 'Occupied', 'B', 25),
+                                        (1004, 'Empty', 'B', 25),
                                         (1005, 'Occupied', 'B', 25),
-                                        (1006, 'Occupied', 'B', 25),
-                                        (1205, 'Occupied', 'A', 23),
+                                        (1006, 'Empty', 'B', 25),
+                                        (1205, 'Empty', 'A', 23),
                                         (1206, 'Occupied', 'A', 23),
                                         (1207, 'Empty', 'A', 23),
                                         (1208, 'Empty', 'A', 23)""") 
