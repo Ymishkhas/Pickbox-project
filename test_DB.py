@@ -3,12 +3,18 @@ import unittest
 
 class TestDB(unittest.TestCase):
 
+    def setUp(self):
+        self.conn = sqlite3.connect('C:/Users/youse/Desktop/tkinter/pickbox.db')
+        self.c= self.conn.cursor()
+
+    def tearDown(self):
+        self.conn.close()
+
     def test_tables(self):
 
-        conn = sqlite3.connect('C:/Users/youse/Desktop/tkinter/pickbox.db')
-        c= conn.cursor()
+        
 
-        query = c.execute("select * from online_store")
+        query = self.c.execute("select * from online_store")
         result = fetched= query.fetchall()
         expected = [(101, 'Guerlain', '01:12:00:00', 'Guerlain@pickbox', '###'),
                     (102 , 'Al-Nahdi', '00:06:00:00', 'Al-Nahdi@pickbox', '###'),
@@ -21,7 +27,7 @@ class TestDB(unittest.TestCase):
                     (109 , 'ArabiaOud', '00:18:00:00', 'ArabiaOud@pickbox', '###')]
         self.assertEqual(result, expected)
 
-        query = c.execute("select * from driver")
+        query = self.c.execute("select * from driver")
         result= query.fetchall()
         expected = [(501, 'Jeddah', 'South Jeddah', 'iHerb_South_Jeddah@pickbox', '###', 107),
                     (502, 'Jeddah', 'North Jeddah', 'iHerb_North_Jeddah@pickbox', '###', 107),
@@ -30,7 +36,7 @@ class TestDB(unittest.TestCase):
                     (505, 'Jeddah', 'Middle Jeddah', 'iHerb_Middle_Jeddah@pickbox', '###', 107)]
         self.assertEqual(result, expected)
 
-        query = c.execute("select * from pickbox")
+        query = self.c.execute("select * from pickbox")
         result= query.fetchall()
         expected = [(20, 'Active', 'Jeddah', 'North Jeddah', 'Taiba', 'R42V+8J'),
                     (21, 'Active', 'Jeddah', 'North Jeddah', 'Al Sawari', 'Q4W2+WC'),
@@ -40,7 +46,7 @@ class TestDB(unittest.TestCase):
                     (25, 'Down', 'Jeddah', 'North Jeddah', 'Al Firdous', 'Q4P9+FX')]
         self.assertEqual(result, expected)
 
-        query = c.execute("select * from store_deliver_to")
+        query = self.c.execute("select * from store_deliver_to")
         result= query.fetchall()
         expected = [(107,20),
                     (107,21),
@@ -48,7 +54,7 @@ class TestDB(unittest.TestCase):
                     (107,25)]
         self.assertEqual(result, expected)
 
-        query = c.execute("select * from locker")
+        query = self.c.execute("select * from locker")
         result= query.fetchall()
         expected = [(1004, 'Empty', 'B', 25),
                     (1005, 'Occupied', 'B', 25),
@@ -62,7 +68,7 @@ class TestDB(unittest.TestCase):
                     (1208, 'Empty', 'A', 23)]
         self.assertEqual(result, expected)
 
-        query = c.execute("select * from customer")
+        query = self.c.execute("select * from customer")
         result= query.fetchall()
         expected = [(1,'yaseer Alharbi', 966555411384, 'yaseer@gmail.com'),
                     (2,'Jacob Qiza', 966580688210, 'Jacob@hotmail.com'),
@@ -71,7 +77,7 @@ class TestDB(unittest.TestCase):
                     (5,'amjad Mubarak', 966554587433, 'amjad26@gmail.com')]
         self.assertEqual(result, expected)
 
-        query = c.execute("select * from shipment")
+        query = self.c.execute("select * from shipment")
         result= query.fetchall()
         expected = [(100001, 'Shipped', '2023-04-25, 01:00 PM', '2023-04-25, 11:00 AM', 1),
                     (100002, 'Picked Up', '2023-01-02, 01:00 PM', '2023-01-02, 12:34 PM', 1),
@@ -86,7 +92,7 @@ class TestDB(unittest.TestCase):
                     (100011, 'Shipped', '2023-01-6, 3:00 PM', '2023-01-6, 1:19 PM', 3)]
         self.assertEqual(result, expected)
 
-        query = c.execute("select * from shipment_belongs_to")
+        query = self.c.execute("select * from shipment_belongs_to")
         result= query.fetchall()
         expected = [(100001,101, 1130),
                     (100002,105, 1004),
@@ -101,14 +107,9 @@ class TestDB(unittest.TestCase):
                     (100011,101, 1132)]
         self.assertEqual(result, expected)
 
-        conn.close()
-
     def test_views(self):
-
-        conn = sqlite3.connect('C:/Users/youse/Desktop/tkinter/pickbox.db')
-        c= conn.cursor()
         
-        query = c.execute("select * from customerView")
+        query = self.c.execute("select * from customerView")
         result= query.fetchall()
         expected = [(100001, 'Shipped', '2023-04-25, 11:00 AM', 1130, 22, 'yaseer@gmail.com', 'Guerlain', 966555411384), 
                     (100002, 'Picked Up', '2023-01-02, 12:34 PM', 1004, 25, 'yaseer@gmail.com', 'Coffee Mood', 966555411384), 
@@ -122,8 +123,6 @@ class TestDB(unittest.TestCase):
                     (100010, 'Shipped', '2023-12-1, 1:19 PM', 1130, 22, 'amjad26@gmail.com', 'iHerb', 966554587433), 
                     (100011, 'Shipped', '2023-01-6, 1:19 PM', 1132, 22, 'YousefXX@Yahoo.com', 'Guerlain', 966507095266)]
         self.assertEqual(result, expected)
-
-        conn.close()
         
 
 if __name__ == '__main__':
