@@ -5,6 +5,7 @@ conn = sqlite3.connect('C:/Users/youse/Desktop/tkinter/pickbox.db')
 #create cursor
 c= conn.cursor()
 
+
 # create tables
 c.execute("""CREATE TABLE online_store (
                 store_id integer,
@@ -51,22 +52,12 @@ c.execute("""CREATE TABLE locker (
                 FOREIGN KEY (pickbox_id) REFERENCES pickbox(pickbox_id)
             )""")
 
-c.execute("""CREATE TABLE unregistered_customer (
+c.execute("""CREATE TABLE customer (
                 customer_id integer,
+                customer_name text,
                 phone integer,
-                PRIMARY KEY (customer_id)
-            )""")
-
-c.execute("""CREATE TABLE registered_customer (
-                customer_id integer,
-                first_name text,
-                minit text,
-                last_name text,
                 email text,
-                username text,
-                password text,
                 PRIMARY KEY (customer_id)
-                FOREIGN KEY (customer_id) REFERENCES unregistered_customer(customer_id)
             )""")
 
 c.execute("""CREATE TABLE shipment (
@@ -76,7 +67,7 @@ c.execute("""CREATE TABLE shipment (
                 deliveryTime text,
                 customer_id integer,
                 PRIMARY KEY (shipment_id)
-                FOREIGN KEY (customer_id) REFERENCES unregistered_customer(customer_id)
+                FOREIGN KEY (customer_id) REFERENCES customer(customer_id)
             )""")
 
 c.execute("""CREATE TABLE shipment_belongs_to (
@@ -98,17 +89,18 @@ c.execute("""CREATE VIEW customerView AS
                     shipment.deliveryTime,
                     shipment_belongs_to.locker_id, 
                     locker.pickbox_id, 
+                    customer.email,
                     online_store.store_name, 
-                    unregistered_customer.phone
+                    customer.phone
                 FROM 
                     shipment, 
                     shipment_belongs_to, 
                     online_store, 
                     locker, 
-                    unregistered_customer  
+                    customer  
                 WHERE 
                     shipment.shipment_id = shipment_belongs_to.shipment_id AND   
-                    shipment.customer_id = unregistered_customer.customer_id AND 
+                    shipment.customer_id = customer.customer_id AND 
                     shipment_belongs_to.store_id = online_store.store_id AND 
                     shipment_belongs_to.locker_id = locker.locker_id
                 """)
@@ -148,22 +140,17 @@ c.execute("""INSERT INTO locker VALUES (1130, 'Empty', 'A', 22),
                                         (1132, 'Occupied', 'A', 22),
                                         (1004, 'Occupied', 'B', 25),
                                         (1005, 'Occupied', 'B', 25),
-                                        (1006, 'Occupied', 'B', 23),
+                                        (1006, 'Occupied', 'B', 25),
                                         (1205, 'Occupied', 'A', 23),
                                         (1206, 'Occupied', 'A', 23),
-                                        (1207, 'Empty', 'A', 23)""") 
+                                        (1207, 'Empty', 'A', 23),
+                                        (1208, 'Empty', 'A', 23)""") 
 
-c.execute("""INSERT INTO unregistered_customer VALUES (1,966555411384),
-                                                    (2,966580688210),
-                                                    (3,966507095266),
-                                                    (4,966552495419),
-                                                    (5,966554587433)""") 
-
-c.execute("""INSERT INTO registered_customer VALUES (1,'yaseer', 'Ashraf', 'Alharbi', 'yaseer@gmail.com', 'yaseerAshraf' ,'###'),
-                                                    (2,'Jacob', 'Hassan', 'Qiza', 'Jacob@hotmail.com', 'Jacob12' ,'###'),
-                                                    (3,'Yousef', 'Ahmad', 'Sumaydee', 'YousefXX@Yahoo.com', 'YousefXX' ,'###'),
-                                                    (4,'Gordon', 'Peter', 'Griffen', 'GordonsUncle@gmail.com', 'GordonsUncle' ,'###'),
-                                                    (5,'amjad', 'Ali', 'Mubarak', 'amjad26@gmail.com', 'amjad26' ,'###')""") 
+c.execute("""INSERT INTO customer VALUES (1,'yaseer Alharbi', '966555411384', 'yaseer@gmail.com'),
+                                        (2,'Jacob Qiza', '966580688210', 'Jacob@hotmail.com'),
+                                        (3,'Yousef Sumaydee', '966507095266', 'YousefXX@Yahoo.com'),
+                                        (4,'Gordon Griffen', '966552495419', 'GordonsUncle@gmail.com'),
+                                        (5,'amjad Mubarak', '966554587433', 'amjad26@gmail.com')""") 
 
 c.execute("""INSERT INTO shipment VALUES (100001, 'Shipped', '2023-04-25, 01:00 PM', '2023-04-25, 11:00 AM', 1),
                                         (100002, 'Picked Up', '2023-01-02, 01:00 PM', '2023-01-02, 12:34 PM', 1),
@@ -184,7 +171,7 @@ c.execute("""INSERT INTO shipment_belongs_to VALUES (100001,101, 1130),
                                                     (100005,107, 1006),
                                                     (100006,106, 1206),
                                                     (100007,109, 1132),
-                                                    (100008,109, 1133),
+                                                    (100008,109, 1207),
                                                     (100009,107, 1207),
                                                     (100010,107, 1130),
                                                     (100011,101, 1132)""") 
