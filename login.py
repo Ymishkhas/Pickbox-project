@@ -17,7 +17,7 @@ def show_orders(Pnum, phone_number_root):
     # Get orders from database for the entered phone number
     number=Pnum.get()
     print(number)
-    orders = c.execute(f"SELECT *, oid FROM shipments WHERE phone = {number}")
+    orders = c.execute(f"SELECT * FROM customerView WHERE phone = {number}")
     fetched= orders.fetchall()
     print(fetched)
     # Close the database connection
@@ -37,15 +37,15 @@ def show_orders(Pnum, phone_number_root):
     treeview.pack()
 
     # Set up the columns of the treeview
-    treeview["columns"] = ("shipment_id", "status", "delivery_time", "locker_id", "pickboxid", "email", "storeid","storename","phone")
+    treeview["columns"] = ("shipment_id", "status", "delivery_time", "locker_id", "pickboxid","storename","phone")
     treeview.column("#0", width=0, stretch=tk.NO)
     treeview.column("shipment_id", anchor=tk.CENTER, width=60)
     treeview.column("status", anchor=tk.CENTER, width=80)
     treeview.column("delivery_time", anchor=tk.CENTER, width=100)
     treeview.column("locker_id", anchor=tk.CENTER, width=40)
     treeview.column("pickboxid", anchor=tk.CENTER, width=40)
-    treeview.column("email", anchor=tk.CENTER, width=120)
-    treeview.column("storeid", anchor=tk.CENTER, width=50)
+    # treeview.column("email", anchor=tk.CENTER, width=120)
+    # treeview.column("storeid", anchor=tk.CENTER, width=50)
     treeview.column("storename", anchor=tk.CENTER, width=100)
     treeview.column("phone", anchor=tk.CENTER, width=100)
     # Set up the headings of the columns
@@ -55,8 +55,8 @@ def show_orders(Pnum, phone_number_root):
     treeview.heading("delivery_time", text="Delivery Time", anchor=tk.CENTER)
     treeview.heading("locker_id", text="Locker ID", anchor=tk.CENTER)
     treeview.heading("pickboxid", text="PickBox ID", anchor=tk.CENTER)
-    treeview.heading("email", text="Email", anchor=tk.CENTER)
-    treeview.heading("storeid", text="Store ID", anchor=tk.CENTER)
+    # treeview.heading("email", text="Email", anchor=tk.CENTER)
+    # treeview.heading("storeid", text="Store ID", anchor=tk.CENTER)
     treeview.heading("storename", text="Store Name", anchor=tk.CENTER)
     treeview.heading("phone", text="Phone Number", anchor=tk.CENTER)   
     # Insert the orders into the treeview

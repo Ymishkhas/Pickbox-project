@@ -5,7 +5,6 @@ conn = sqlite3.connect('C:/Users/youse/Desktop/tkinter/pickbox.db')
 #create cursor
 c= conn.cursor()
 
-
 # create tables
 c.execute("""CREATE TABLE online_store (
                 store_id integer,
