@@ -22,7 +22,7 @@ c.execute("""CREATE TABLE driver (
                 region text,
                 username text,
                 password text,
-                store_id text,
+                store_id integer,
                 PRIMARY KEY (driver_id),
                 FOREIGN KEY (store_id) REFERENCES online_store(store_id)
             )""")
@@ -135,22 +135,22 @@ c.execute("""INSERT INTO store_deliver_to VALUES (107,20),
                                                 (107,22),
                                                 (107,25)""") 
 
-c.execute("""INSERT INTO locker VALUES (1130, 'Occupied', 'A', 22),
-                                        (1131, 'Empty', 'A', 22),
-                                        (1132, 'Occupied', 'A', 22),
-                                        (1004, 'Empty', 'B', 25),
+c.execute("""INSERT INTO locker VALUES (1004, 'Empty', 'B', 25),
                                         (1005, 'Occupied', 'B', 25),
                                         (1006, 'Empty', 'B', 25),
+                                        (1130, 'Occupied', 'A', 22),
+                                        (1131, 'Empty', 'A', 22),
+                                        (1132, 'Occupied', 'A', 22),
                                         (1205, 'Empty', 'A', 23),
                                         (1206, 'Occupied', 'A', 23),
                                         (1207, 'Empty', 'A', 23),
                                         (1208, 'Empty', 'A', 23)""") 
 
-c.execute("""INSERT INTO customer VALUES (1,'yaseer Alharbi', '966555411384', 'yaseer@gmail.com'),
-                                        (2,'Jacob Qiza', '966580688210', 'Jacob@hotmail.com'),
-                                        (3,'Yousef Sumaydee', '966507095266', 'YousefXX@Yahoo.com'),
-                                        (4,'Gordon Griffen', '966552495419', 'GordonsUncle@gmail.com'),
-                                        (5,'amjad Mubarak', '966554587433', 'amjad26@gmail.com')""") 
+c.execute("""INSERT INTO customer VALUES (1,'yaseer Alharbi', 966555411384, 'yaseer@gmail.com'),
+                                        (2,'Jacob Qiza', 966580688210, 'Jacob@hotmail.com'),
+                                        (3,'Yousef Sumaydee', 966507095266, 'YousefXX@Yahoo.com'),
+                                        (4,'Gordon Griffen', 966552495419, 'GordonsUncle@gmail.com'),
+                                        (5,'amjad Mubarak', 966554587433, 'amjad26@gmail.com')""") 
 
 c.execute("""INSERT INTO shipment VALUES (100001, 'Shipped', '2023-04-25, 01:00 PM', '2023-04-25, 11:00 AM', 1),
                                         (100002, 'Picked Up', '2023-01-02, 01:00 PM', '2023-01-02, 12:34 PM', 1),
