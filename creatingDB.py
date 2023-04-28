@@ -1,7 +1,7 @@
 import sqlite3
 
 # create DB
-conn = sqlite3.connect('C:/Users/youse/Desktop/tkinter/pickbox.db')
+conn = sqlite3.connect('D:/Downloads/tkinter2.0/pickbox.db')
 #create cursor
 c= conn.cursor()
 

@@ -9,6 +9,7 @@ import customtkinter
 import sqlite3
 import os
 import re
+from datetime import datetime
 
 DB_PATH = 'D:/Downloads/tkinter2.0/pickbox.db'
 generatedPIN = 0
@@ -63,70 +64,76 @@ def show_order(shipID, shipment_id_root):
         treeview.insert("", row_count, text="", values=oneorder)
         row_count += 1
     
-    delete_button = customtkinter.CTkButton(shipment_id_root, text="Delete Selected Orders", command=lambda: delete_selected_orders(treeview))
-    delete_button.pack()
-    delete_button.place(relx= 0.25, rely= 0.6) 
+    # delete_button = customtkinter.CTkButton(shipment_id_root, text="Delete Selected Orders", command=lambda: delete_selected_orders(treeview))
+    # delete_button.pack()
+    # delete_button.place(relx= 0.25, rely= 0.6) 
 
-# Next Commit..
-def merge_selected_orders(treeview):
-    pass
-#     # Get the selected orders
-#     selected_orders = []
-#     for item in treeview.get_children():
-#         values = treeview.item(item, "values")
-#         if values[0] == True:
-#             selected_orders.append(values)
-    
-#     # Check that there are at least two orders selected
-#     if len(selected_orders) < 2:
-#         messagebox.showerror("Error", "You must select at least two orders to merge.")
-#         return
-    
-#     # Check that all selected orders have the same locker ID
-#     locker_ids = set([order[4] for order in selected_orders])
-#     if len(locker_ids) > 1:
-#         messagebox.showerror("Error", "All selected orders must have the same locker ID.")
-#         return
-#     locker_id = locker_ids.pop()
-    
-#     # Get the delivery time of the first order
-#     delivery_time = selected_orders[0][3]
-    
-#     # Generate a new shipment ID for the merged order
-#     new_shipment_id = generate_shipment_id()
-    
-#     # Update the database to merge the selected orders
-#     conn = sqlite3.connect(DB_PATH)
-#     c = conn.cursor()
-#     for order in selected_orders:
-#         c.execute("UPDATE orders SET shipment_id = ?, locker_id = ? WHERE shipment_id = ?",
-#                   (new_shipment_id, locker_id, order[1]))
-#     conn.commit()
-#     conn.close()
-    
-#     # Show a success message and refresh the order display
-#     messagebox.showinfo("Success", "Orders merged successfully.")
-#     show_orders(Pnum, phone_number_root, pin)
 #
-def delete_order(order_id):
-    """Deletes the order from the database."""
+def merge_selected_orders(treeview):
+    # Get the selected orders
+    selected_orders = []
+    for item in treeview.get_children():
+        values = treeview.item(item, "values")
+        if values[0] == True:
+            selected_orders.append(values)
+    
+    # Check that there are at least two orders selected
+    if len(selected_orders) < 2:
+        messagebox.showerror("Error", "You must select at least two orders to merge.")
+        return
+    
+    # # Check that all selected orders have the same locker ID
+    # locker_ids = set([order[2] for order in selected_orders])
+    # if len(locker_ids) > 1:
+    #     messagebox.showerror("Error", "One order is already cancelled, cant merge that.")
+    #     return
+    # locker_id = locker_ids.pop()
+
+    # Check that all selected orders can be merged (Not cancelled orders)
+    
+    # Get the delivery time of the first order
+    delivery_time = selected_orders[0][3]
+    
+    # Generate a new shipment ID for the merged order
+    new_shipment_id = generate_shipment_id()
+    
+    # Update the database to merge the selected orders
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    for order in selected_orders:
+        c.execute("UPDATE orders SET shipment_id = ?, locker_id = ? WHERE shipment_id = ?",
+                  (new_shipment_id, locker_id, order[1]))
+    conn.commit()
+    conn.close()
+    
+    # Show a success message and refresh the order display
+    messagebox.showinfo("Success", "Orders merged successfully.")
+    show_orders(Pnum, phone_number_root, pin)
+#
+def cancel_order(shipment_id):
+    print("this is shipment id:", shipment_id)
+    """cancel the order from the database."""
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
     #check the variables names here
-    c.execute("DELETE FROM shipment WHERE shipment_id = ?", (order_id,))
+    c.execute("UPDATE shipment SET status = 'Cancelled', deliveryTime = ? WHERE shipment_id = ?", (shipment_id, str(getCurrentTime())))
     conn.commit()
+
+    result = c.execute("select * FROM shipment WHERE shipment_id = ?", (shipment_id,))
+    print(result.get())
     conn.close()
     # check the variables names here also
-    messagebox.showinfo("Success", f"Order {order_id} has been deleted.")
+    messagebox.showinfo("Success", f"Order {shipment_id} has been cancelled.")
 
 
-def delete_selected_orders(treeview):
-    """Deletes the selected orders from the database."""
+def cancel_selected_orders(treeview):
+    """cancel the selected orders from the database."""
     selected_items = treeview.selection()
     for item in selected_items:
-        order_id = treeview.item(item, "values")[0]
-        delete_order(order_id)
+        shipment_id = treeview.item(item, "values")[1]
+        cancel_order(shipment_id)
         treeview.delete(item)
+        
 
 #This method recieves a number and searches the DB for matching rows using a query with a condition of matching the number
 #Basically display all orders that have the same phone number
@@ -170,17 +177,19 @@ def show_orders(Pnum, phone_number_root, pin):
         treeview.pack()
 
         # Set up the columns of the treeview
+          # Set up the columns of the treeview
+        # Set up the columns of the treeview
         treeview["columns"] = ("select", "shipment_id", "status", "delivery_time", "locker_id", "pickboxid", "email", "storename", "phone")
         treeview.column("#0", width=0, stretch=tk.NO)
         treeview.column("select", anchor=tk.CENTER, width=50)
-        treeview.column("shipment_id", anchor=tk.CENTER, width=60)
+        treeview.column("shipment_id", anchor=tk.CENTER, width=50)
         treeview.column("status", anchor=tk.CENTER, width=80)
         treeview.column("delivery_time", anchor=tk.CENTER, width=100)
         treeview.column("locker_id", anchor=tk.CENTER, width=40)
         treeview.column("pickboxid", anchor=tk.CENTER, width=40)
         treeview.column("email", anchor=tk.CENTER, width=120)
-        treeview.column("storename", anchor=tk.CENTER, width=100)
-        treeview.column("phone", anchor=tk.CENTER, width=100)
+        treeview.column("storename", anchor=tk.CENTER, width=70)
+        treeview.column("phone", anchor=tk.CENTER, width=80)
         # Set up the headings of the columns
         treeview.heading("#0", text="", anchor=tk.W)
         treeview.heading("select", text="", anchor=tk.CENTER)
@@ -191,15 +200,15 @@ def show_orders(Pnum, phone_number_root, pin):
         treeview.heading("pickboxid", text="PickBox ID", anchor=tk.CENTER)
         treeview.heading("email", text="Email", anchor=tk.CENTER)
         treeview.heading("storename", text="Store Name", anchor=tk.CENTER)
-        treeview.heading("phone", text="Phone Number", anchor=tk.CENTER)  
-        
+        treeview.heading("phone", text="Phone Number", anchor=tk.CENTER)
+
         # Insert the orders into the treeview
         row_count = 0
         for oneorder in orders:
             treeview.insert("", row_count, text="", values=(False, *oneorder))
             row_count += 1
         # Delete selected orders when the delete button is clicked
-        delete_button = customtkinter.CTkButton(phone_number_root, text="Delete Selected Orders", command=lambda: delete_selected_orders(treeview))
+        delete_button = customtkinter.CTkButton(phone_number_root, text="Cancel Selected Orders", command=lambda: cancel_selected_orders(treeview))
         delete_button.pack()
         delete_button.place(relx= 0.25, rely= 0.6)        
 
@@ -207,8 +216,41 @@ def show_orders(Pnum, phone_number_root, pin):
         merge_button.pack()
         merge_button.place(relx= 0.55, rely= 0.6)    
 
+        refresh_button = customtkinter.CTkButton(phone_number_root, text="Refresh Orders", command=lambda: refresh_orders(treeview, phone, orders_frame))
 
+        refresh_button.pack()
+        refresh_button.place(relx=0.4, rely=0.7)
             
+
+def refresh_orders(treeview, phone, orders_frame):
+
+    
+    # # Clear the existing frame, if any
+    # for widget in orders_frame.winfo_children():
+    #     widget.destroy()
+
+    # Connect to database
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+        
+     # Get orders from database for the entered phone number
+    number = phone 
+    orders = c.execute("SELECT * FROM customerView WHERE phone = ?", (phone,)).fetchall()
+    
+
+    # Close the database connection
+    conn.commit()
+    conn.close()
+
+    # Clear the existing treeview
+    treeview.delete(*treeview.get_children())
+
+    
+    # Insert the new orders into the treeview
+    row_count = 0
+    for oneorder in orders:
+        treeview.insert("", row_count, text="", values=(False, *oneorder))
+        row_count += 1
 
 
 def phone_number_page():
@@ -370,7 +412,14 @@ shipment_button.place(relx=0.65, rely=0.5, anchor=tkinter.CENTER)
 
 
 
+def getCurrentTime():
 
+    # datetime object containing current date and time
+    now = datetime.now()
+
+    formatted_string = now.strftime("%d-%m-%Y, %H:%M:%S")
+    
+    return formatted_string
 
 print("Successful running!")
 
