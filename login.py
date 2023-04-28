@@ -9,10 +9,12 @@ import sqlite3
 import os
 import re
 
+DB_PATH = 'C:/Users/youse/Desktop/tkinter/pickbox.db'
+
 # creating connection from "show order" button in shipme
 def show_order(shipID, shipment_id_root):
     #connect to DB
-    conn = sqlite3.connect('C:/Users/youse/Desktop/tkinter/pickbox.db')
+    conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
 
     order = c.execute("SELECT * FROM customerView WHERE shipment_id = ?", (shipID.get(),)).fetchall()
@@ -66,7 +68,7 @@ def show_order(shipID, shipment_id_root):
 def show_orders(Pnum, phone_number_root):
 
     # Connect to database
-    conn = sqlite3.connect('C:/Users/youse/Desktop/tkinter/pickbox.db')
+    conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
     # Get orders from database for the entered phone number
     number=Pnum.get()
