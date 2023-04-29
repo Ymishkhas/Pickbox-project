@@ -11,7 +11,7 @@ import os
 import re
 from datetime import datetime
 
-DB_PATH = 'D:/Downloads/tkinter2.0/pickbox.db'
+DB_PATH = 'C:/Users/youse/Desktop/tkinter/pickbox.db'
 generatedPIN = 0
 generatedPIN_phone = 0
 # creating connection from "show order" button in shipme
@@ -70,69 +70,92 @@ def show_order(shipID, shipment_id_root):
 
 #
 def merge_selected_orders(treeview):
-    # Get the selected orders
-    selected_orders = []
-    for item in treeview.get_children():
+    """merge the selected orders from the database"""
+    
+    # Get the selected orders (not the ones with status Picked Up or Cancelled)
+    valid_shipments = []
+    selected_shipments = treeview.selection()
+    for item in selected_shipments:
+
         values = treeview.item(item, "values")
-        if values[0] == True:
-            selected_orders.append(values)
+        
+        if values[2] == "Picked Up" or values[2] == "Cancelled":
+            messagebox.showerror("Error", f"Shipment {values[1]} is {values[2]} and cannot be merged.")
+        else:
+            valid_shipments.append(values)
+
+        if values[2] == "Ready For Collection":
+            locker_id = values[4]
     
     # Check that there are at least two orders selected
-    if len(selected_orders) < 2:
-        messagebox.showerror("Error", "You must select at least two orders to merge.")
+    if len(valid_shipments) < 2:
+        messagebox.showerror("Error", "You must select at least two valid shipments to merge.")
         return
     
-    # # Check that all selected orders have the same locker ID
-    # locker_ids = set([order[2] for order in selected_orders])
-    # if len(locker_ids) > 1:
-    #     messagebox.showerror("Error", "One order is already cancelled, cant merge that.")
-    #     return
-    # locker_id = locker_ids.pop()
+    # Check that all selected orders have the same pickbox ID
+    pickbox_ids = set([shipment[5] for shipment in valid_shipments])
+    if len(pickbox_ids) > 1:
+        messagebox.showerror("Error", "shipments are in different pickboxs and cannot be merged.")
+        return
+    pickbox_ids = pickbox_ids.pop()
 
-    # Check that all selected orders can be merged (Not cancelled orders)
+    # Check that all selected orders have the same locker ID (Already merged)
+    locker_ids = set([shipment[4] for shipment in valid_shipments])
+    if len(locker_ids) == 1:
+        messagebox.showerror("Error", "shipments already merged.")
+        return
+    locker_ids = locker_ids.pop()
     
-    # Get the delivery time of the first order
-    delivery_time = selected_orders[0][3]
-    
-    # Generate a new shipment ID for the merged order
-    new_shipment_id = generate_shipment_id()
-    
+    # if no shipment was already in a locker, pick a locker to merge orders at
+    if 'locker_id' not in locals():
+        locker_id = valid_shipments[0][4]
+
     # Update the database to merge the selected orders
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
-    for order in selected_orders:
-        c.execute("UPDATE orders SET shipment_id = ?, locker_id = ? WHERE shipment_id = ?",
-                  (new_shipment_id, locker_id, order[1]))
+    for order in valid_shipments:
+        c.execute("UPDATE shipment_belongs_to SET locker_id = ? WHERE shipment_id = ?",(locker_id, order[1],))
     conn.commit()
     conn.close()
     
     # Show a success message and refresh the order display
     messagebox.showinfo("Success", "Orders merged successfully.")
-    show_orders(Pnum, phone_number_root, pin)
-#
+    
+    phone = valid_shipments[0][8]
+    refresh_orders(treeview, phone)
+
 def cancel_order(shipment_id):
-    print("this is shipment id:", shipment_id)
     """cancel the order from the database."""
+    
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
-    #check the variables names here
-    c.execute("UPDATE shipment SET status = 'Cancelled', deliveryTime = ? WHERE shipment_id = ?", (shipment_id, str(getCurrentTime())))
+
+    # Update the neccessary values for order to be cancelled
+    c.execute("UPDATE shipment SET status = 'Cancelled', deliveryTime = ? WHERE shipment_id = ?", (getCurrentTime(), shipment_id,))
+    
     conn.commit()
-
-    result = c.execute("select * FROM shipment WHERE shipment_id = ?", (shipment_id,))
-    print(result.get())
     conn.close()
-    # check the variables names here also
-    messagebox.showinfo("Success", f"Order {shipment_id} has been cancelled.")
 
+    # Dispaly Success msg for customer
+    messagebox.showinfo("Success", f"Shipment {shipment_id} has been cancelled.")
 
 def cancel_selected_orders(treeview):
-    """cancel the selected orders from the database."""
+    """cancel the selected orders from the database"""
+    
     selected_items = treeview.selection()
     for item in selected_items:
+
+        status = treeview.item(item, "values")[2]
         shipment_id = treeview.item(item, "values")[1]
-        cancel_order(shipment_id)
-        treeview.delete(item)
+        phone = treeview.item(item, "values")[8]
+        
+        if status == "Not Yet Dispatched":
+            cancel_order(shipment_id)
+        else:
+            messagebox.showinfo("Failure", f"Shipment {shipment_id} already {status} and cannot be cancelled.")
+        
+        # treeview.delete(item)
+    refresh_orders(treeview, phone)
         
 
 #This method recieves a number and searches the DB for matching rows using a query with a condition of matching the number
@@ -216,28 +239,21 @@ def show_orders(Pnum, phone_number_root, pin):
         merge_button.pack()
         merge_button.place(relx= 0.55, rely= 0.6)    
 
-        refresh_button = customtkinter.CTkButton(phone_number_root, text="Refresh Orders", command=lambda: refresh_orders(treeview, phone, orders_frame))
+        refresh_button = customtkinter.CTkButton(phone_number_root, text="Refresh Orders", command=lambda: refresh_orders(treeview, phone))
 
         refresh_button.pack()
         refresh_button.place(relx=0.4, rely=0.7)
             
 
-def refresh_orders(treeview, phone, orders_frame):
-
-    
-    # # Clear the existing frame, if any
-    # for widget in orders_frame.winfo_children():
-    #     widget.destroy()
+def refresh_orders(treeview, phone):
 
     # Connect to database
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
         
-     # Get orders from database for the entered phone number
-    number = phone 
+    # Get orders from database for the entered phone number
     orders = c.execute("SELECT * FROM customerView WHERE phone = ?", (phone,)).fetchall()
     
-
     # Close the database connection
     conn.commit()
     conn.close()
@@ -245,8 +261,7 @@ def refresh_orders(treeview, phone, orders_frame):
     # Clear the existing treeview
     treeview.delete(*treeview.get_children())
 
-    
-    # Insert the new orders into the treeview
+    # Insert the latest orders into the treeview
     row_count = 0
     for oneorder in orders:
         treeview.insert("", row_count, text="", values=(False, *oneorder))
@@ -417,11 +432,25 @@ def getCurrentTime():
     # datetime object containing current date and time
     now = datetime.now()
 
-    formatted_string = now.strftime("%d-%m-%Y, %H:%M:%S")
+    formatted_string = now.strftime("%Y/%m/%d, %H:%M")
     
     return formatted_string
+
+
+# def compareOrderTime(str_d1, str_d2):
+
+#     # convert string to date object
+#     d1 = datetime.strptime(str_d1, "%Y/%m/%d, %H:%M")
+#     d2 = datetime.strptime(str_d2, "%Y/%m/%d, %H:%M")
+
+#     # difference between dates in timedelta
+#     delta = d2 - d1
+
+#     print(f'Difference is {delta.} days')
 
 print("Successful running!")
 
 
 root.mainloop()
+
+
