@@ -1,3 +1,4 @@
+import atexit
 import sqlite3
 from datetime import datetime
 
@@ -29,9 +30,11 @@ def update_locker(locker_id, shipment_id):
     c.execute("UPDATE shipment_belongs_to SET locker_id = ? WHERE shipment_id = ?",(locker_id, shipment_id))
     conn.commit()
 
-def get_driver_account(username,password):
-    # Get the driver's account from the database
-    return c.execute("select * from driver where username = ? and password = ?", (username,password,)).fetchall()
+def is_valid_driver(username,password):
+    # Check the database for a driver account along with his correct password
+    record =  c.execute("select * from driver where username = ? and password = ?", (username,password,)).fetchall()
+
+    return record != []
 
 def get_driver_store_info(username):
     # Get the driver's region and store name from the database
@@ -57,6 +60,11 @@ def get_driver_orders(username):
                             driver.username = ? AND
                             pickbox.region = driver.region;""", (username,)).fetchall()
 
+def update_shipment_status(shipment_id, new_status):
+    # Update the status in a shipment for a new status got from the database
+    c.execute("UPDATE shipment SET status = ? WHERE shipment_id = ?", (new_status, shipment_id,))
+    conn.commit()
+
 # Helper Functions
 def getCurrentTime():
     # Return a formatted string of the current date and time
@@ -79,3 +87,11 @@ def compareOrderTime(str_d1, str_d2):
     diff_hours = abs((d2 - d1).total_seconds() / 3600)
     
     return diff_hours
+
+def cleanup():
+    # code to run when the program is closing
+    print("Program is closing...DB files are saving and closing")
+    conn.commit()
+    conn.close()
+
+atexit.register(cleanup)
