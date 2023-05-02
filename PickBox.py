@@ -11,26 +11,141 @@ import re
 from datetime import datetime
 import tkinter.ttk as ttk
 import atexit
-import Database.query as query
+import query as query
 
 # GLOBAL VARIABLES
 DB_PATH = 'C:/Users/youse/Desktop/tkinter/Database/pickbox.db'
 generatedPIN = 0
 generatedPIN_phone = 0
 
-conn = sqlite3.connect(DB_PATH)
-c = conn.cursor()
+def main():
+    # Create root window
+    root = customtkinter.CTk()
+    root.geometry("700x400")
+    root.title("Modern Login")
+    root.resizable(False,False)
 
-def cleanup():
-    # code to run when the program is closing
-    print("Program is closing...DB files are saving and closing")
-    conn.commit()
-    conn.close()
+    # Page(1) widgets, CUSTOMER PAGE
+    welcome_label = customtkinter.CTkLabel(root, text="Welcome to Pick Box!", font=("Arial", 24))
+    welcome_label.pack()
+    welcome_label.place(relx=0.5, rely=0.2, anchor=tkinter.CENTER)
 
-atexit.register(cleanup)
+    choose_label = customtkinter.CTkLabel(root, text="Choose what suits you", font=("Arial", 16))
+    choose_label.pack()
+    choose_label.place(relx=0.5, rely=0.4, anchor=tkinter.CENTER)
 
+    phone_button = customtkinter.CTkButton(root, text="Phone Number", command=lambda: phone_number_page(root))
+    phone_button.pack()
+    phone_button.place(relx=0.385, rely=0.5, anchor=tkinter.CENTER)
+
+    shipment_button = customtkinter.CTkButton(root, text="Shipment ID", command=lambda: shipment_id_page(root))
+    shipment_button.pack()
+    shipment_button.place(relx=0.65, rely=0.5, anchor=tkinter.CENTER)
+
+    # Second main page widgets
+    driver_login_frame = customtkinter.CTkFrame(root)
+    driver_login_frame.pack(fill="both", expand=True)
+
+    welcome_driver_label = customtkinter.CTkLabel(driver_login_frame, text="Welcome to Pick Box!", font=("Arial", 24))
+    welcome_driver_label.pack()
+    welcome_driver_label.place(relx=0.5, rely=0.2, anchor=tkinter.CENTER)
+
+    login_label = customtkinter.CTkLabel(driver_login_frame, text="Enter your username and password to show all your orders", font=("Arial", 16))
+    login_label.pack()
+    login_label.place(relx=0.5, rely=0.35, anchor=tkinter.CENTER)
+
+    # Username entry box
+    username_entry = customtkinter.CTkEntry(driver_login_frame, width=220, placeholder_text="Username")
+    username_entry.pack()
+    username_entry.place(relx=0.5, rely=0.45, anchor=tkinter.CENTER)
+
+    # Password entry box
+    password_entry = customtkinter.CTkEntry(driver_login_frame, width=220, placeholder_text="Password", show="*")
+    password_entry.pack()
+    password_entry.place(relx=0.5, rely=0.55, anchor=tkinter.CENTER)
+
+    # Login button
+    login_button = customtkinter.CTkButton(driver_login_frame, text="Log In", fg_color="red", hover_color="dark red", command=lambda: (driver_login_frame.pack_forget(), Driverlogin(root, username_entry.get(), password_entry.get())))
+    login_button.pack()
+    login_button.place(relx=0.5, rely=0.65, anchor=tkinter.CENTER)
+    driver_login_frame.pack_forget()
+
+
+    # Toggle button to switch between customer page and driver page
+    toggle_button = customtkinter.CTkButton(root, text=">", font=("Arial", 12), width=2, height=50,
+                                            command=lambda: driver_login_frame.pack(side="right", fill="both", expand=True) if driver_login_frame.winfo_ismapped() == 0 else driver_login_frame.pack_forget())
+    toggle_button.pack()
+    toggle_button.place(relx=0.99, rely=0.01, anchor=tkinter.NE)
+
+    root.mainloop()
+    print("Successful running!")
+
+def phone_number_page(root):
+    # Create phone number page
+    # Create shipment id page
+    phone_number_frame = customtkinter.CTkFrame(root)
+    phone_number_frame.pack(fill="both", expand=True)
+
+    
+    # phone_number_frame.title("Phone Number Page")
+    # phone_number_frame.resizable(False, False)
+
+    # create textboxes
+    enter = customtkinter.CTkLabel(phone_number_frame, text="Enter your phone number to show all your orders ", font=("Arial", 16))
+    enter.pack()
+    enter.place(relx=0.5, rely=0.2, anchor=tkinter.CENTER)
+
+    
+
+    def validate_phone_number(new_value):
+        return new_value.isdigit() or new_value == ""
+
+    Pnum = customtkinter.CTkEntry(master=phone_number_frame, placeholder_text="966", width=220, validate="key", validatecommand=(phone_number_frame.register(validate_phone_number), "%P"))
+    
+    Pnum.pack()
+    Pnum.place(relx=0.5, rely=0.3, anchor=tkinter.CENTER)
+
+ 
+    #create Send pin button
+    checkButton=  customtkinter.CTkButton(phone_number_frame, text= "Send PIN", command=lambda: generatePIN(Pnum.get()))
+    checkButton.pack()
+    checkButton.place(relx=0.8, rely=0.3, anchor=tkinter.CENTER)
+
+    #Check PIN entry
+    pin = customtkinter.CTkEntry(master=phone_number_frame, width=220, placeholder_text="PIN",)
+    pin.pack()
+    pin.place(relx=0.5, rely=0.5, anchor=tkinter.CENTER)
+
+
+    
+    #Show order invokation
+    show = customtkinter.CTkButton(phone_number_frame, text="Show Orders", command=lambda: show_orders(phone_number_frame, Pnum.get(), pin.get()))
+    show.pack()
+    show.place(relx=0.5, rely=0.6, anchor=tkinter.CENTER)
+
+
+    #
+
+
+    
+    def refresh():
+        phone_number_frame.destroy()
+        phone_number_page(root)
+
+    refresh_button = customtkinter.CTkButton(phone_number_frame, text="Refresh", command=refresh)
+    refresh_button.pack()
+    refresh_button.place(relx=0.9, rely=0.05, anchor=tkinter.CENTER)
+
+    back_button = customtkinter.CTkButton(phone_number_frame, text="Back to Main Page", command=phone_number_frame.destroy)
+    back_button.pack()
+    back_button.place(relx=0.5, rely=0.8, anchor=tkinter.CENTER)
+
+    phone_number_frame.mainloop()
+
+
+# Iterate over the selected shipments and runs checks to see if the shipment can be merged, if so then it merge
 def merge_selected_orders(treeview):
-    """merge the selected orders from the database"""
+    """merge the selected orders"""
     
     # Get the selected orders (not the ones with status Picked Up or Cancelled)
     valid_shipments = []
@@ -89,8 +204,7 @@ def merge_selected_orders(treeview):
     phone = valid_shipments[0][8]
     refresh_orders(treeview, phone)
 
-# This method will iterate over the selected shipments and runs checks to see if the shipment can be cancelled, 
-# if so then it calss query.cancel_shipment method with every qualified shipment
+# Iterate over the selected shipments and runs checks to see if the shipment can be cancelled, if so it cancel it
 def cancel_selected_orders(treeview):
     """cancel the selected orders"""
     
@@ -110,8 +224,8 @@ def cancel_selected_orders(treeview):
         # treeview.delete(shipment)
     refresh_orders(treeview, phone)
         
-#This method recieves a number and searches the DB for matching rows using a query with a condition of matching the number
-#Basically display all orders that have the same phone number
+# Recieves a number and searches the DB for matching rows using a query with a condition of matching the number
+# Basically display all orders that have the same phone number
 def show_orders(phone_number_frame, phone, pin):
 
     global generatedPIN
@@ -185,20 +299,12 @@ def show_orders(phone_number_frame, phone, pin):
         back_button.pack()
         back_button.place(relx=0.5, rely=0.8, anchor=tkinter.CENTER)
             
-
+# Used inside show orders function, when an operation happen(cancel or merge) it update the page with the latest changes
 def refresh_orders(treeview, phone):
 
-    # Connect to database
-    # conn = sqlite3.connect(DB_PATH)
-    # c = conn.cursor()
-        
     # Get orders from database for the entered phone number
     orders = query.get_shipments(phone)
     
-    # Close the database connection
-    # conn.commit()
-    # conn.close()
-
     # Clear the existing treeview
     treeview.delete(*treeview.get_children())
 
@@ -208,69 +314,7 @@ def refresh_orders(treeview, phone):
         treeview.insert("", row_count, text="", values=(False, *oneorder))
         row_count += 1
 
-
-def phone_number_page():
-    # Create phone number page
-    # Create shipment id page
-    phone_number_frame = customtkinter.CTkFrame(root)
-    phone_number_frame.pack(fill="both", expand=True)
-
-    
-    # phone_number_frame.title("Phone Number Page")
-    # phone_number_frame.resizable(False, False)
-
-    # create textboxes
-    enter = customtkinter.CTkLabel(phone_number_frame, text="Enter your phone number to show all your orders ", font=("Arial", 16))
-    enter.pack()
-    enter.place(relx=0.5, rely=0.2, anchor=tkinter.CENTER)
-
-    
-
-    def validate_phone_number(new_value):
-        return new_value.isdigit() or new_value == ""
-
-    Pnum = customtkinter.CTkEntry(master=phone_number_frame, placeholder_text="966", width=220, validate="key", validatecommand=(phone_number_frame.register(validate_phone_number), "%P"))
-    
-    Pnum.pack()
-    Pnum.place(relx=0.5, rely=0.3, anchor=tkinter.CENTER)
-
- 
-    #create Send pin button
-    checkButton=  customtkinter.CTkButton(phone_number_frame, text= "Send PIN", command=lambda: generatePIN(Pnum.get()))
-    checkButton.pack()
-    checkButton.place(relx=0.8, rely=0.3, anchor=tkinter.CENTER)
-
-    #Check PIN entry
-    pin = customtkinter.CTkEntry(master=phone_number_frame, width=220, placeholder_text="PIN",)
-    pin.pack()
-    pin.place(relx=0.5, rely=0.5, anchor=tkinter.CENTER)
-
-
-    
-    #Show order invokation
-    show = customtkinter.CTkButton(phone_number_frame, text="Show Orders", command=lambda: show_orders(phone_number_frame, Pnum.get(), pin.get()))
-    show.pack()
-    show.place(relx=0.5, rely=0.6, anchor=tkinter.CENTER)
-
-
-    #
-
-
-    
-    def refresh():
-        phone_number_frame.destroy()
-        phone_number_page()
-
-    refresh_button = customtkinter.CTkButton(phone_number_frame, text="Refresh", command=refresh)
-    refresh_button.pack()
-    refresh_button.place(relx=0.9, rely=0.05, anchor=tkinter.CENTER)
-
-    back_button = customtkinter.CTkButton(phone_number_frame, text="Back to Main Page", command=phone_number_frame.destroy)
-    back_button.pack()
-    back_button.place(relx=0.5, rely=0.8, anchor=tkinter.CENTER)
-
-    phone_number_frame.mainloop()
-
+# Used in the phone_number_page, checks if the entered phone is valid and generate a PIN code to be sent to the customer phone as a verification
 def generatePIN(phone):
     
     global generatedPIN
@@ -284,15 +328,12 @@ def generatePIN(phone):
     else:
         messagebox.showerror("Error", "No such registred phone in our system, double check your entered phone number")
 
+
 def refresh_order(treeview, shipment_id):
         
     # Get orders from database for the entered phone number
     order = query.get_shipment(shipment_id)
     
-    # Close the database connection
-    # conn.commit()
-    # conn.close()
-
     # Clear the existing treeview
     treeview.delete(*treeview.get_children())
 
@@ -370,7 +411,7 @@ def show_order(shipID, shipment_id_frame):
     back_button.place(relx=0.5, rely=0.8, anchor=tkinter.CENTER)
 
 
-def shipment_id_page():
+def shipment_id_page(root):
     # Create shipment id page
     shipment_id_frame = customtkinter.CTkFrame(root)
     shipment_id_frame.pack(fill="both", expand=True)
@@ -393,7 +434,7 @@ def shipment_id_page():
 
     def refresh():
         shipment_id_frame.destroy()
-        shipment_id_page()
+        shipment_id_page(root)
 
     refresh_button = customtkinter.CTkButton(shipment_id_frame, text="Refresh", command=refresh)
     refresh_button.pack()
@@ -409,79 +450,25 @@ def shipment_id_page():
 
 
 
-# Create root window
-root = customtkinter.CTk()
-root.geometry("700x400")
-root.title("Modern Login")
-root.resizable(False,False)
-
-# First main page widgets
-welcome_label = customtkinter.CTkLabel(root, text="Welcome to Pick Box!", font=("Arial", 24))
-welcome_label.pack()
-welcome_label.place(relx=0.5, rely=0.2, anchor=tkinter.CENTER)
-
-choose_label = customtkinter.CTkLabel(root, text="Choose what suits you", font=("Arial", 16))
-choose_label.pack()
-choose_label.place(relx=0.5, rely=0.4, anchor=tkinter.CENTER)
-
-phone_button = customtkinter.CTkButton(root, text="Phone Number", command=phone_number_page)
-phone_button.pack()
-phone_button.place(relx=0.385, rely=0.5, anchor=tkinter.CENTER)
-
-shipment_button = customtkinter.CTkButton(root, text="Shipment ID", command=shipment_id_page)
-shipment_button.pack()
-shipment_button.place(relx=0.65, rely=0.5, anchor=tkinter.CENTER)
 
 
-# Helper Functions
 
-# def get_driver_account(username,password):
-#     # Get the driver's account from the database
-#     return c.execute("select * from driver where username = ? and password = ?", (username,password,)).fetchall()
-
-# def get_driver_store_info(username):
-#     # Get the driver's region and store name from the database
-#     return c.execute("select region, store_name from online_store, driver where driver.username = ? and driver.store_id = online_store.store_id", (username,)).fetchall()
-
-# def get_driver_orders(username):
-#     # Get the driver's orders from the database
-#     return c.execute("""SELECT 
-#                             customerView.shipment_id, 
-#                             customerView.status, 
-#                             customerView.deliveryTime, 
-#                             customerView.locker_id, 
-#                             customerView.pickbox_id
-#                         FROM
-#                             customerView, 
-#                             driver, 
-#                             pickbox,
-#                             online_store
-#                         WHERE 
-#                             customerView.store_name = online_store.store_name AND
-#                             driver.store_id = online_store.store_id AND
-#                             pickbox.pickbox_id = customerView.pickbox_id AND
-#                             driver.username = ? AND
-#                             pickbox.region = driver.region;""", (username,)).fetchall()
 
 # Create a function to handle the Driver login button click
-def Driverlogin():
-
-    # Save the username and password entries
-    username = username_entry.get()
-    password = password_entry.get()
+def Driverlogin(root, username, password):
 
     # Check username and password in the DB
-    result = query.get_driver_account(username,password)
-    if result == []:
+    if not query.is_valid_driver(username,password):
         messagebox.showerror("Error", "the entered username/password is incorrect.")
         return
                 
     # Hide the second login frame
-    driver_login_frame.pack_forget()
+    # driver_login_frame.pack_forget()
 
-    # Create a new page
+    # Create driver shipments page
     order_page_frame = customtkinter.CTkFrame(root)
     order_page_frame.pack(fill="both", expand=True)
+
 
     # Create a label to display the driver
     driver_info = query.get_driver_store_info(username)
@@ -527,7 +514,7 @@ def Driverlogin():
         elif prev_status == "Out For Delivery":
             new_status = "Ready For Collection"
             
-        c.execute("UPDATE shipment SET status = ? WHERE shipment_id = ?", (new_status, shipment_id,))
+        query.update_shipment_status(shipment_id, new_status)
         messagebox.showinfo("Success", f"Shipment {shipment_id} has been updated to {new_status}.")
 
     def update_selected_shipments():
@@ -547,7 +534,7 @@ def Driverlogin():
                 update_status(shipment_id, prev_status)
 
         order_page_frame.pack_forget()
-        Driverlogin()
+        Driverlogin(root, username, password)
 
         # # Refresh the treeview to show the updated status
         # refresh_treeview()
@@ -560,46 +547,13 @@ def Driverlogin():
     
 
     # Create a button to go back to the second login page
-    back_button = customtkinter.CTkButton(order_page_frame, text="Go Back", fg_color="red", hover_color="dark red", command=lambda: order_page_frame.pack_forget())
+    back_button = customtkinter.CTkButton(order_page_frame, text="Go Back", fg_color="red", hover_color="dark red", command= order_page_frame.destroy)
     back_button.pack()
     back_button.place(relx=0.5, rely=0.9, anchor=tkinter.CENTER)
 
-# Second main page widgets
-driver_login_frame = customtkinter.CTkFrame(root)
-driver_login_frame.pack(fill="both", expand=True)
-
-welcome_driver_label = customtkinter.CTkLabel(driver_login_frame, text="Welcome to Pick Box!", font=("Arial", 24))
-welcome_driver_label.pack()
-welcome_driver_label.place(relx=0.5, rely=0.2, anchor=tkinter.CENTER)
-
-login_label = customtkinter.CTkLabel(driver_login_frame, text="Enter your username and password to show all your orders", font=("Arial", 16))
-login_label.pack()
-login_label.place(relx=0.5, rely=0.35, anchor=tkinter.CENTER)
-
-# Username entry box
-username_entry = customtkinter.CTkEntry(driver_login_frame, width=220, placeholder_text="Username")
-username_entry.pack()
-username_entry.place(relx=0.5, rely=0.45, anchor=tkinter.CENTER)
-
-# Password entry box
-password_entry = customtkinter.CTkEntry(driver_login_frame, width=220, placeholder_text="Password", show="*")
-password_entry.pack()
-password_entry.place(relx=0.5, rely=0.55, anchor=tkinter.CENTER)
-
-# Login button
-login_button = customtkinter.CTkButton(driver_login_frame, text="Log In", fg_color="red", hover_color="dark red", command=Driverlogin)
-login_button.pack()
-login_button.place(relx=0.5, rely=0.65, anchor=tkinter.CENTER)
-driver_login_frame.pack_forget()
+    order_page_frame.mainloop()
 
 
-# Toggle button to switch between customer page and driver page
-toggle_button = customtkinter.CTkButton(root, text=">", font=("Arial", 12), width=2, height=50,
-                                        command=lambda: driver_login_frame.pack(side="right", fill="both", expand=True) if driver_login_frame.winfo_ismapped() == 0 else driver_login_frame.pack_forget())
-toggle_button.pack()
-toggle_button.place(relx=0.99, rely=0.01, anchor=tkinter.NE)
-
-root.mainloop()
 
 def getCurrentTime():
 
@@ -623,9 +577,11 @@ def compareOrderTime(str_d1, str_d2):
     
     return diff_hours
 
-print("Successful running!")
 
 
 
 
 
+
+if __name__ == '__main__':
+    main()
