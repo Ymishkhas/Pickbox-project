@@ -11,9 +11,10 @@ import re
 from datetime import datetime
 import tkinter.ttk as ttk
 import atexit
+import Database.query as query
 
 # GLOBAL VARIABLES
-DB_PATH = 'C:/Users/youse/Desktop/tkinter/pickbox.db'
+DB_PATH = 'C:/Users/youse/Desktop/tkinter/Database/pickbox.db'
 generatedPIN = 0
 generatedPIN_phone = 0
 
@@ -79,7 +80,7 @@ def merge_selected_orders(treeview):
 
     # Update the database to merge the selected orders
     for order in valid_shipments:
-        c.execute("UPDATE shipment_belongs_to SET locker_id = ? WHERE shipment_id = ?",(locker_id, order[1],))
+        query.update_locker(locker_id, order[1])
 
     
     # Show a success message and refresh the order display
@@ -88,58 +89,40 @@ def merge_selected_orders(treeview):
     phone = valid_shipments[0][8]
     refresh_orders(treeview, phone)
 
-def cancel_order(shipment_id):
-    """cancel the order from the database."""
-
-    # Update the neccessary values for order to be cancelled
-    c.execute("UPDATE shipment SET status = 'Cancelled', deliveryTime = ? WHERE shipment_id = ?", (getCurrentTime(), shipment_id,))
-    
-
-    # Dispaly Success msg for customer
-    messagebox.showinfo("Success", f"Shipment {shipment_id} has been cancelled.")
-
+# This method will iterate over the selected shipments and runs checks to see if the shipment can be cancelled, 
+# if so then it calss query.cancel_shipment method with every qualified shipment
 def cancel_selected_orders(treeview):
-    """cancel the selected orders from the database"""
+    """cancel the selected orders"""
     
-    selected_items = treeview.selection()
-    for item in selected_items:
+    selected_shipments = treeview.selection()
+    for shipment in selected_shipments:
 
-        status = treeview.item(item, "values")[2]
-        shipment_id = treeview.item(item, "values")[1]
-        phone = treeview.item(item, "values")[8]
+        status = treeview.item(shipment, "values")[2]
+        shipment_id = treeview.item(shipment, "values")[1]
+        phone = treeview.item(shipment, "values")[8]
         
         if status == "Not Yet Dispatched":
-            cancel_order(shipment_id)
+            query.cancel_shipment(shipment_id)
+            messagebox.showinfo("Success", f"Shipment {shipment_id} has been cancelled.")
         else:
             messagebox.showinfo("Failure", f"Shipment {shipment_id} already {status} and cannot be cancelled.")
         
-        # treeview.delete(item)
+        # treeview.delete(shipment)
     refresh_orders(treeview, phone)
         
-
 #This method recieves a number and searches the DB for matching rows using a query with a condition of matching the number
 #Basically display all orders that have the same phone number
-
-def show_orders(Pnum, phone_number_frame, pin):
+def show_orders(phone_number_frame, phone, pin):
 
     global generatedPIN
     global generatedPIN_phone
-
-    pin = pin.get()
-    phone = Pnum.get()
 
     if str(generatedPIN) != pin or str(generatedPIN_phone) != phone:
         messagebox.showerror("Error", "Wrong PIN number, try sending a new PIN number")
 
     else:
 
-        # Connect to database
-        # conn = sqlite3.connect(DB_PATH)
-        # c = conn.cursor()
-        # Get orders from database for the entered phone number
-        number = Pnum.get()
-        
-        orders = c.execute("SELECT * FROM customerView WHERE phone = ?", (phone,)).fetchall()
+        orders = query.get_shipments(phone)
         
         
         # Close the database connection
@@ -210,7 +193,7 @@ def refresh_orders(treeview, phone):
     # c = conn.cursor()
         
     # Get orders from database for the entered phone number
-    orders = c.execute("SELECT * FROM customerView WHERE phone = ?", (phone,)).fetchall()
+    orders = query.get_shipments(phone)
     
     # Close the database connection
     # conn.commit()
@@ -253,7 +236,7 @@ def phone_number_page():
 
  
     #create Send pin button
-    checkButton=  customtkinter.CTkButton(phone_number_frame, text= "Send PIN", command=lambda: generatePIN(Pnum))
+    checkButton=  customtkinter.CTkButton(phone_number_frame, text= "Send PIN", command=lambda: generatePIN(Pnum.get()))
     checkButton.pack()
     checkButton.place(relx=0.8, rely=0.3, anchor=tkinter.CENTER)
 
@@ -265,7 +248,7 @@ def phone_number_page():
 
     
     #Show order invokation
-    show = customtkinter.CTkButton(phone_number_frame, text="Show Orders", command=lambda: show_orders(Pnum, phone_number_frame,pin))
+    show = customtkinter.CTkButton(phone_number_frame, text="Show Orders", command=lambda: show_orders(phone_number_frame, Pnum.get(), pin.get()))
     show.pack()
     show.place(relx=0.5, rely=0.6, anchor=tkinter.CENTER)
 
@@ -292,24 +275,19 @@ def generatePIN(phone):
     
     global generatedPIN
     global generatedPIN_phone
-
-    # conn = sqlite3.connect(DB_PATH)
-    # c = conn.cursor()
-    #
-    result = c.execute("select * from customer where phone= ?", (phone.get(),)).fetchall()
   
-    if result != []:
+    if query.is_valid_customer(phone):
         generatedPIN = random.randint(1000,9999)
         print("PIN:", generatedPIN)
-        generatedPIN_phone = phone.get()
+        generatedPIN_phone = phone
         
     else:
-        messagebox.showerror("Error", "No such registred phone with that number in our system, double check your entered phone number")
+        messagebox.showerror("Error", "No such registred phone in our system, double check your entered phone number")
 
 def refresh_order(treeview, shipment_id):
         
     # Get orders from database for the entered phone number
-    order = c.execute("SELECT * FROM customerView WHERE shipment_id = ?", (shipment_id,)).fetchall()
+    order = query.get_shipment(shipment_id)
     
     # Close the database connection
     # conn.commit()
@@ -331,7 +309,7 @@ def show_order(shipID, shipment_id_frame):
     #connect to DB
     shipment_id = shipID.get()
 
-    order = c.execute("SELECT * FROM customerView WHERE shipment_id = ?", (shipment_id,)).fetchall()
+    order = query.get_shipment(shipment_id)
 
     print(order)
 
@@ -382,17 +360,14 @@ def show_order(shipID, shipment_id_frame):
     status = order[0][1]
     if status == "Not Yet Dispatched":
         # Delete selected orders when the delete button is clicked
-        delete_button = customtkinter.CTkButton(shipment_id_frame, text="Cancel Order", command=lambda: (cancel_order(shipment_id), shipment_id_frame.destroy()))
+        delete_button = customtkinter.CTkButton(shipment_id_frame, text="Cancel Order", 
+                                                command=lambda: (query.cancel_shipment(shipment_id), shipment_id_frame.destroy(), messagebox.showinfo("Success", f"Shipment {shipment_id} has been cancelled.")))
         delete_button.pack()
         delete_button.place(relx= 0.4, rely= 0.65)  
 
     back_button = customtkinter.CTkButton(shipment_id_frame, text="Back to Main Page", command=shipment_id_frame.destroy)
     back_button.pack()
     back_button.place(relx=0.5, rely=0.8, anchor=tkinter.CENTER)
-    
-    # delete_button = customtkinter.CTkButton(shipment_id_root, text="Delete Selected Orders", command=lambda: delete_selected_orders(treeview))
-    # delete_button.pack()
-    # delete_button.place(relx= 0.25, rely= 0.6) 
 
 
 def shipment_id_page():
@@ -434,17 +409,13 @@ def shipment_id_page():
 
 
 
-
-
 # Create root window
 root = customtkinter.CTk()
 root.geometry("700x400")
 root.title("Modern Login")
 root.resizable(False,False)
 
-
-
-# First login page widgets
+# First main page widgets
 welcome_label = customtkinter.CTkLabel(root, text="Welcome to Pick Box!", font=("Arial", 24))
 welcome_label.pack()
 welcome_label.place(relx=0.5, rely=0.2, anchor=tkinter.CENTER)
@@ -462,6 +433,35 @@ shipment_button.pack()
 shipment_button.place(relx=0.65, rely=0.5, anchor=tkinter.CENTER)
 
 
+# Helper Functions
+
+# def get_driver_account(username,password):
+#     # Get the driver's account from the database
+#     return c.execute("select * from driver where username = ? and password = ?", (username,password,)).fetchall()
+
+# def get_driver_store_info(username):
+#     # Get the driver's region and store name from the database
+#     return c.execute("select region, store_name from online_store, driver where driver.username = ? and driver.store_id = online_store.store_id", (username,)).fetchall()
+
+# def get_driver_orders(username):
+#     # Get the driver's orders from the database
+#     return c.execute("""SELECT 
+#                             customerView.shipment_id, 
+#                             customerView.status, 
+#                             customerView.deliveryTime, 
+#                             customerView.locker_id, 
+#                             customerView.pickbox_id
+#                         FROM
+#                             customerView, 
+#                             driver, 
+#                             pickbox,
+#                             online_store
+#                         WHERE 
+#                             customerView.store_name = online_store.store_name AND
+#                             driver.store_id = online_store.store_id AND
+#                             pickbox.pickbox_id = customerView.pickbox_id AND
+#                             driver.username = ? AND
+#                             pickbox.region = driver.region;""", (username,)).fetchall()
 
 # Create a function to handle the Driver login button click
 def Driverlogin():
@@ -471,40 +471,24 @@ def Driverlogin():
     password = password_entry.get()
 
     # Check username and password in the DB
-    result = c.execute("select * from driver where username = ? and password = ?", (username,password,)).fetchall()
+    result = query.get_driver_account(username,password)
     if result == []:
         messagebox.showerror("Error", "the entered username/password is incorrect.")
         return
                 
     # Hide the second login frame
-    second_login_frame.pack_forget()
+    driver_login_frame.pack_forget()
 
     # Create a new page
     order_page_frame = customtkinter.CTkFrame(root)
     order_page_frame.pack(fill="both", expand=True)
 
     # Create a label to display the driver
-    driver_info = c.execute("select region, store_name from online_store, driver where driver.username = ? and driver.store_id = online_store.store_id", (username,)).fetchall()
+    driver_info = query.get_driver_store_info(username)
     driver_label = customtkinter.CTkLabel(order_page_frame, text=f"Welcome {driver_info[0][0]} of {driver_info[0][1]}", font=("Arial", 18))
     driver_label.pack(side=tkinter.TOP, pady=10)
 
-    orders = c.execute("""SELECT 
-                            customerView.shipment_id, 
-                            customerView.status, 
-                            customerView.deliveryTime, 
-                            customerView.locker_id, 
-                            customerView.pickbox_id
-                        FROM
-                            customerView, 
-                            driver, 
-                            pickbox,
-                            online_store
-                        WHERE 
-                            customerView.store_name = online_store.store_name AND
-                            driver.store_id = online_store.store_id AND
-                            pickbox.pickbox_id = customerView.pickbox_id AND
-                            driver.username = ? AND
-                            pickbox.region = driver.region;""", (username,)).fetchall()
+    orders = query.get_driver_orders(username)
 
     # Create a treeview to show the orders
     treeview = ttk.Treeview(order_page_frame)
@@ -580,53 +564,42 @@ def Driverlogin():
     back_button.pack()
     back_button.place(relx=0.5, rely=0.9, anchor=tkinter.CENTER)
 
-# Second login page widgets
-second_login_frame = customtkinter.CTkFrame(root)
-second_login_frame.pack(fill="both", expand=True)
+# Second main page widgets
+driver_login_frame = customtkinter.CTkFrame(root)
+driver_login_frame.pack(fill="both", expand=True)
 
-second_login_label = customtkinter.CTkLabel(second_login_frame, text="Welcome to Pick Box!", font=("Arial", 24))
-second_login_label.pack()
-second_login_label.place(relx=0.5, rely=0.2, anchor=tkinter.CENTER)
+welcome_driver_label = customtkinter.CTkLabel(driver_login_frame, text="Welcome to Pick Box!", font=("Arial", 24))
+welcome_driver_label.pack()
+welcome_driver_label.place(relx=0.5, rely=0.2, anchor=tkinter.CENTER)
 
- # create textboxes
-msg_label = customtkinter.CTkLabel(second_login_frame, text="Enter your username and password to show all your orders", font=("Arial", 16))
-msg_label.pack()
-msg_label.place(relx=0.5, rely=0.35, anchor=tkinter.CENTER)
-
-# second_login_button = customtkinter.CTkButton(second_login_frame, text="Go Back", command=lambda: second_login_frame.pack_forget())
-# second_login_button.pack()
-# second_login_button.place(relx=0.5, rely=0.5, anchor=tkinter.CENTER)
+login_label = customtkinter.CTkLabel(driver_login_frame, text="Enter your username and password to show all your orders", font=("Arial", 16))
+login_label.pack()
+login_label.place(relx=0.5, rely=0.35, anchor=tkinter.CENTER)
 
 # Username entry box
-username_entry = customtkinter.CTkEntry(second_login_frame, width=220, placeholder_text="Username")
+username_entry = customtkinter.CTkEntry(driver_login_frame, width=220, placeholder_text="Username")
 username_entry.pack()
 username_entry.place(relx=0.5, rely=0.45, anchor=tkinter.CENTER)
 
 # Password entry box
-password_entry = customtkinter.CTkEntry(second_login_frame, width=220, placeholder_text="Password", show="*")
+password_entry = customtkinter.CTkEntry(driver_login_frame, width=220, placeholder_text="Password", show="*")
 password_entry.pack()
 password_entry.place(relx=0.5, rely=0.55, anchor=tkinter.CENTER)
 
 # Login button
-login_button = customtkinter.CTkButton(second_login_frame, text="Log In", fg_color="red", hover_color="dark red", command=Driverlogin)
+login_button = customtkinter.CTkButton(driver_login_frame, text="Log In", fg_color="red", hover_color="dark red", command=Driverlogin)
 login_button.pack()
 login_button.place(relx=0.5, rely=0.65, anchor=tkinter.CENTER)
-# login_button.config(command=lambda: login_success(username_entry.get(), password_entry.get()))
-second_login_frame.pack_forget()
+driver_login_frame.pack_forget()
 
 
-# # Add a red button to the second login page
-# red_button = customtkinter.CTkButton(second_login_frame, text="Red Button", fg_color="red", hover_color="#8B0000")
-# red_button.pack()
-# red_button.place(relx=0.5, rely=0.5, anchor=tkinter.CENTER)
-
-# Toggle button to switch between login pages
+# Toggle button to switch between customer page and driver page
 toggle_button = customtkinter.CTkButton(root, text=">", font=("Arial", 12), width=2, height=50,
-                                        command=lambda: second_login_frame.pack(side="right", fill="both", expand=True) if second_login_frame.winfo_ismapped() == 0 else second_login_frame.pack_forget())
+                                        command=lambda: driver_login_frame.pack(side="right", fill="both", expand=True) if driver_login_frame.winfo_ismapped() == 0 else driver_login_frame.pack_forget())
 toggle_button.pack()
 toggle_button.place(relx=0.99, rely=0.01, anchor=tkinter.NE)
 
-
+root.mainloop()
 
 def getCurrentTime():
 
@@ -637,7 +610,7 @@ def getCurrentTime():
     
     return formatted_string
 
-
+# This compares the delivery time for 2 shipments    
 def compareOrderTime(str_d1, str_d2):
 
     # convert string to date object
@@ -653,6 +626,6 @@ def compareOrderTime(str_d1, str_d2):
 print("Successful running!")
 
 
-root.mainloop()
+
 
 

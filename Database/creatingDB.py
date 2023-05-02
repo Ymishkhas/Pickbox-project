@@ -1,6 +1,6 @@
 import sqlite3
 
-DB_PATH = 'C:/Users/youse/Desktop/tkinter/pickbox.db'
+DB_PATH = 'C:/Users/youse/Desktop/tkinter/Database/pickbox.db'
 
 # create DB
 conn = sqlite3.connect(DB_PATH)
