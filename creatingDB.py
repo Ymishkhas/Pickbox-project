@@ -1,7 +1,9 @@
 import sqlite3
 
+DB_PATH = 'C:/Users/youse/Desktop/tkinter/pickbox.db'
+
 # create DB
-conn = sqlite3.connect('D:/Downloads/tkinter2.0/pickbox.db')
+conn = sqlite3.connect(DB_PATH)
 #create cursor
 c= conn.cursor()
 
@@ -152,17 +154,17 @@ c.execute("""INSERT INTO customer VALUES (1,'yaseer Alharbi', 966555411384, 'yas
                                         (4,'Gordon Griffen', 966552495419, 'GordonsUncle@gmail.com'),
                                         (5,'amjad Mubarak', 966554587433, 'amjad26@gmail.com')""") 
 
-c.execute("""INSERT INTO shipment VALUES (100001, 'Shipped', '2023-04-25, 01:00 PM', '2023-04-25, 11:00 AM', 1),
-                                        (100002, 'Picked Up', '2023-01-02, 01:00 PM', '2023-01-02, 12:34 PM', 1),
-                                        (100003, 'Picked Up', '2023-06-13, 10:00 AM', '2023-06-13, 8:20 AM', 2),
-                                        (100004, 'Cancelled', '2023-09-3, 7:00 PM', '2023-09-3, 6:46 PM', 2),
-                                        (100005, 'Out For Delivery', '2023-09-7, 6:30 PM', null, 3),
-                                        (100006, 'Picked Up', '2023-09-12, 7:45 PM', '2023-09-12, 7:02 PM', 4),
-                                        (100007, 'Picked Up', '2023-09-28, 9:30 AM', '2023-09-28, 9:09 AM', 5),
-                                        (100008, 'Picked Up', '2023-09-28, 9:20 AM', '2023-09-28, 9:12 AM', 1),
-                                        (100009, 'Out For Delivery', '2023-10-31, 9:15 AM', null, 5),
-                                        (100010, 'Shipped', '2023-12-1, 2:20 PM', '2023-12-1, 1:19 PM', 5),
-                                        (100011, 'Shipped', '2023-01-6, 3:00 PM', '2023-01-6, 1:19 PM', 3)""") 
+c.execute("""INSERT INTO shipment VALUES (100001, 'Not Yet Dispatched', '2023/04/25, 13:00', '2023/04/25, 11:00', 1),
+                                        (100002, 'Not Yet Dispatched', '2023/09/03, 08:00', '2023/01/02, 12:34', 1),
+                                        (100003, 'Not Yet Dispatched', '2023/06/13, 10:00', '2023/06/13, 8:20', 1),
+                                        (100004, 'Out For Delivery', '2023/09/03, 19:00', '2023/09/3, 18:46', 1),
+                                        (100005, 'Out For Delivery', '2023/09/03, 21:30', '2023/09/7, 18:12', 1),
+                                        (100006, 'Out For Delivery', '2023/09/12, 19:45', '2023/09/12, 19:02', 1),
+                                        (100007, 'Ready For Collection', '2023/09/28, 21:30', '2023/09/28, 21:09', 1),
+                                        (100008, 'Ready For Collection', '2023/09/28, 21:20', '2023/09/28, 21:12', 1),
+                                        (100009, 'Not Yet Dispatched', '2023/10/31, 21:15', '2023/10/31, 20:10', 1),
+                                        (100010, 'Not Yet Dispatched', '2023/12/01, 14:20', '2023/12/1, 13:19', 1),
+                                        (100011, 'Shipped', '2023/01/06, 15:00', '2023/01/6, 13:19', 3)""") 
 
 c.execute("""INSERT INTO shipment_belongs_to VALUES (100001,101, 1130),
                                                     (100002,105, 1004),
