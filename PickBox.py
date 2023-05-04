@@ -89,7 +89,7 @@ def phone_number_page(root):
     # Phone number entry box
     def allowed_phone_entry(new_value):
         return new_value.isdigit() or new_value == ""
-    phone_number = customtkinter.CTkEntry(master=phone_number_frame, placeholder_text="966", width=220, validate="key", validatecommand=(phone_number_frame.register(allowed_phone_entry), "%P"))
+    phone_number = customtkinter.CTkEntry(master=phone_number_frame, width=220, validate="key", validatecommand=(phone_number_frame.register(allowed_phone_entry), "%P"))
     phone_number.pack()
     phone_number.place(relx=0.5, rely=0.3, anchor=tkinter.CENTER)
 
@@ -437,13 +437,13 @@ def merge_selected_shipments(treeview):
         return
     locker_ids = locker_ids.pop()
 
-    # # Check that the time difference between the selected orders is not greater than 12 hours
-    # start_date = valid_shipments[0][3]
-    # end_date = valid_shipments[-1][3]
-    # diff_hours = util.compareOrderTime(start_date, end_date)
-    # if diff_hours > 12:
-    #     messagebox.showerror("Failure", "The time difference of orderTime between the selected orders is greater than 12 hours and cannot be merged.")
-    #     return
+    # Check that the delivry time difference between the selected orders is not greater than 12 hours
+    start_date = valid_shipments[0][4]
+    end_date = valid_shipments[-1][4]
+    diff_hours = utils.compareOrderTime(start_date, end_date)
+    if diff_hours > 12:
+        messagebox.showerror("Failure", "The time difference of delivry Time between the selected orders is greater than 12 hours and cannot be merged.")
+        return
     
     # if no shipment was already in a locker, pick a locker to merge orders at
     if 'locker_id' not in locals():
