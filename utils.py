@@ -114,9 +114,19 @@ def compareOrderTime(str_d1, str_d2):
     
     return diff_hours
 
+def restore_shipment_status_latest_update(shipment_id, prev_status, prev_latest_update):
+    
+    c.execute("UPDATE shipment SET status = ?, latestUpdate = ? WHERE shipment_id = ?", (prev_status, prev_latest_update, shipment_id,))
+    conn.commit()
+
+def restore_shipment_locker_id(shipment_id, prev_locker_id):
+    
+    c.execute("UPDATE shipment_belongs_to SET locker_id = ? WHERE shipment_id = ?",(prev_locker_id, shipment_id))
+    conn.commit()
+
 def cleanup():
     # code to run when the program is closing
-    print("Program is closing...DB files are saving and closing")
+    print("\nProgram is closing...DB files are saving and closing")
     conn.commit()
     conn.close()
 
