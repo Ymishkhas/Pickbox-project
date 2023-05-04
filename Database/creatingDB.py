@@ -129,21 +129,21 @@ c.execute("""INSERT INTO pickbox VALUES (20, 'Active', 'Jeddah', 'North Jeddah',
                                         (24, 'Active', 'Jeddah', 'North Jeddah', 'Al Lulu', 'Q39C+XM'),
                                         (25, 'Down', 'Jeddah', 'North Jeddah', 'Al Firdous', 'Q4P9+FX')""") 
 
-c.execute("""INSERT INTO store_deliver_to VALUES (107,20),
-                                                (107,21),
-                                                (107,22),
-                                                (107,23),
-                                                (107,24),
+c.execute("""INSERT INTO store_deliver_to VALUES (101,20),
+                                                (101,21),
+                                                (101,22),
+                                                (101,23),
+                                                (101,24),
                                                 (106,20),
                                                 (106,21),
                                                 (106,22),
                                                 (106,23),
                                                 (106,24),
-                                                (101,20),
-                                                (101,21),
-                                                (101,22),
-                                                (101,23),
-                                                (101,24)""") 
+                                                (107,20),
+                                                (107,21),
+                                                (107,22),
+                                                (107,23),
+                                                (107,24)""") 
 
 c.execute("""INSERT INTO locker VALUES (1004, 'Empty', 1743, 20),
                                         (1005, 'Occupied', 5582, 20),
@@ -151,12 +151,12 @@ c.execute("""INSERT INTO locker VALUES (1004, 'Empty', 1743, 20),
                                         (1007, 'Empty', 7899, 20),
                                         (1130, 'Occupied', 7654, 21),
                                         (1131, 'Empty', 4522, 21),
-                                        (1132, 'Occupied', 2456, 21),
+                                        (1132, 'Empty', 2456, 21),
                                         (1133, 'Occupied', 9369, 21),
-                                        (1243, 'Occupied', 5448, 21),
+                                        (1243, 'Empty', 5448, 21),
                                         (1244, 'Empty', 5677, 22),
                                         (1245, 'Occupied', 1794, 22),
-                                        (1246, 'Occupied', 1689, 22),
+                                        (1246, 'Empty', 1689, 22),
                                         (1305, 'Empty', 8495, 23),
                                         (1306, 'Occupied', 6685, 23),
                                         (1307, 'Empty', 5719, 23),
@@ -166,22 +166,22 @@ c.execute("""INSERT INTO customer VALUES (1,'Mohammed Alhaddad', 966500010007, '
                                         (2,'Yousef Mishkhas', 966580688210, 'y3ou12@hotmail.com'),
                                         (3,'Hatem Alharbi', 966555411384, 'hatim999@Yahoo.com')""") 
 
-c.execute("""INSERT INTO shipment VALUES (100001, 'Pending', '2023/04/25, 13:00', '2023/04/24, 11:00', 3),
-                                        (100002, 'Pending', '2023/09/03, 08:00', '2023/01/03, 12:34', 3),
-                                        (100003, 'Out For Delivery', '2023/06/13, 10:00', '2023/06/13, 07:20', 3),
-                                        (100004, 'Ready For Collection', '2023/09/03, 19:00', '2023/09/03, 18:46', 3),
-                                        (100005, 'Ready For Collection', '2023/09/03, 21:30', '2023/09/07, 18:12', 3),
-                                        (100006, 'Picked Up', '2023/09/12, 19:45', '2023/09/12, 20:02', 3),
-                                        (100007, 'Pending', '2023/04/25, 13:00', '2023/04/25, 11:00', 1),
-                                        (100008, 'Pending', '2023/09/03, 08:00', '2023/01/03, 12:34', 1),
-                                        (100009, 'Out For Delivery', '2023/06/13, 10:00', '2023/06/13, 8:20', 1),
-                                        (100010, 'Ready For Collection', '2023/09/03, 19:00', '2023/09/03, 18:46', 1),
-                                        (100011, 'Ready For Collection', '2023/09/03, 21:30', '2023/09/07, 18:12', 1),
-                                        (100012, 'Picked Up', '2023/09/12, 19:45', '2023/09/12, 19:50', 1),
-                                        (100013, 'Pending', '2023/09/28, 21:30', '2023/09/27, 21:09', 2),
-                                        (100014, 'Pending', '2023/09/28, 21:20', '2023/09/28, 21:12', 2),
-                                        (100015, 'Out For Delivery', '2023/10/31, 21:15', '2023/10/31, 19:10', 3),
-                                        (100016, 'Ready For Collection', '2023/12/01, 14:20', '2023/12/01, 13:19', 2)""") 
+c.execute("""INSERT INTO shipment VALUES (100001, 'Pending', '2023/05/10, 13:00', '2023/04/29, 11:00', 3),
+                                        (100002, 'Pending', '2023/05/12, 08:00', '2023/05/08, 12:34', 3),
+                                        (100003, 'Out For Delivery', '2023/05/05, 10:00', '2023/05/05, 07:20', 3),
+                                        (100004, 'Ready For Collection', '2023/05/05, 19:00', '2023/05/05, 18:46', 3),
+                                        (100005, 'Ready For Collection', '2023/05/05, 07:30', '2023/05/05, 03:30', 3),
+                                        (100006, 'Picked Up', '2023/04/12, 19:45', '2023/04/12, 20:02', 3),
+                                        (100007, 'Pending', '2023/05/20, 13:00', '2023/05/18, 11:00', 1),
+                                        (100008, 'Pending', '2023/05/17, 08:00', '2023/05/14, 12:34', 1),
+                                        (100009, 'Out For Delivery', '2023/05/13, 10:00', '2023/05/13, 8:20', 1),
+                                        (100010, 'Ready For Collection', '2023/05/13, 19:00', '2023/05/13, 18:46', 1),
+                                        (100011, 'Ready For Collection', '2023/05/13, 08:30', '2023/05/13, 07:12', 1),
+                                        (100012, 'Picked Up', '2023/04/28, 19:45', '2023/04/28, 19:50', 1),
+                                        (100013, 'Pending', '2023/05/28, 21:30', '2023/05/20, 21:09', 2),
+                                        (100014, 'Pending', '2023/05/28, 21:20', '2023/05/25, 21:12', 2),
+                                        (100015, 'Out For Delivery', '2023/05/05, 21:15', '2023/05/05, 19:10', 3),
+                                        (100016, 'Ready For Collection', '2023/05/01, 14:20', '2023/05/01, 13:19', 2)""") 
 
 c.execute("""INSERT INTO shipment_belongs_to VALUES (100001,101, 1004),
                                                     (100002,106, 1305),
@@ -204,43 +204,3 @@ conn.commit()
 conn.close()
 
 print("Created Database successfully")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# c.execute("""CREATE TABLE shipments (
-#                 shipid integer primary key,
-#                 status text,
-#                 deliveryTime text,
-#                 lockerid integer,
-#                 pickboxid integer,
-#                 email text,
-#                 storeid integer,
-#                 storename text,
-#                 phone integer
-#             )""") 
-
-# #insert initial info
-# c.execute("""INSERT INTO shipments VALUES (100001, 'Shipped', '2023-04-25, 11:00 AM', 1123, 1001, 'yaseer@gmail.com', 301, 'Guerlain', 966555411384),
-#                                         (100002, 'Picked Up', '2023-01-2, 12:34 PM', 1124, 1001, 'Jacob@hotmail.com', 302, 'Al-Nahdi', 966555411384),
-#                                         (100003, 'Cancelled', '2023-06-13, 8:20 AM', 1120, 1003, 'YousefXX@Yahoo.com', 304, 'Addidas',966580688210),
-#                                         (100004, 'Out For Delivery', '2023-09-3, 6:46 PM', 1122, 1001, 'Hegazi@gmail.com', 305, 'Puma', 966580688210),
-#                                         (100005, 'Out For Delivery', '2023-09-7, 6:20 PM', 1121, 1003, 'mohammed@gmail.com', 306, 'Coffee Mood', 966580688210),
-#                                         (100006, 'Picked Up', '2023-09-12, 7:02 PM', 1127, 1001, 'Based@gmail.com', 301, 'Guerlain', 966555411384),
-#                                         (100007, 'Picked Up', '2023-09-28, 9:09 AM', 1120, 1004, 'amjad26@gmail.com', 308, 'Tom Ford', 966507095266),
-#                                         (100008, 'Picked Up', '2023-09-28, 9:12 AM', 1121, 1004, 'amjad26@gmail.com', 309, 'iHerb', 966507095266),
-#                                         (100009, 'Picked Up', '2023-10-31, 9:12 AM', 1120, 1002, 'GordonsUncle@gmail.com', 309, 'iHerb', 966552495419),
-#                                         (100012, 'Picked Up', '2023-10-31, 9:15 AM', 1120, 1002, 'GordonsUncle@gmail.com', 310, 'SesamBakery', 966552495419),
-#                                         (100010, 'Shipped', '2023-12-1, 1:19 PM', 1122, 1002, 'GordonsUncle@gmail.com', 311, 'ArabiaOud', 966552495419),
-#                                         (100011, 'Picked Up', '2023-01-6, 1:19 PM', 1120, 1009, 'Yaseen1423@gmail.com', 312, 'Macdonalds', 966554587433)""") 
