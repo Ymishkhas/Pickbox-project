@@ -7,6 +7,7 @@ import utils
 
 DB_PATH = 'C:/Users/youse/Desktop/tkinter/Database/pickbox.db'
 
+# These test works only if the database in its original form, if you made changes please delete pickbox.db and run creatingDB to get the original one
 class TestDB(unittest.TestCase):
 
     def setUp(self):
@@ -171,7 +172,7 @@ if __name__ == '__main__':
 # conn = sqlite3.connect(DB_PATH)
 # c = conn.cursor()
 
-# orders = c.execute("select * from customerView").fetchall()
+# orders = utils.get_shipments(966580688210)
 
 # print(orders)
 
