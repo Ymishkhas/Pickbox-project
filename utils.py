@@ -62,6 +62,7 @@ def get_driver_orders(username):
     return c.execute("""SELECT 
                             customerView.shipment_id, 
                             customerView.status, 
+                            customerView.latestUpdate,
                             customerView.deliveryTime, 
                             customerView.pickbox_id,
                             customerView.locker_id
