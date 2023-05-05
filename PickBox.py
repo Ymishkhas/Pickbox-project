@@ -9,7 +9,6 @@ import tkinter.ttk as ttk
 import utils as utils
 
 # GLOBAL VARIABLES
-DB_PATH = 'C:/Users/youse/Desktop/tkinter/Database/pickbox.db'
 generatedPIN = 0
 generatedPIN_phone = 0
 
@@ -274,7 +273,7 @@ def show_shipment(shipment_id, shipment_id_frame):
     treeview.pack()
 
     # Set up the columns of the treeview
-    treeview["columns"] = ("shipment_id", "status", "latest_update","delivery_time", "storename", "pickboxid", "locker_id", "phone")
+    treeview["columns"] = ("shipment_id", "status", "latest_update", "delivery_time", "storename", "pickboxid", "locker_id", "phone")
     treeview.column("#0", width=0, stretch=tk.NO)
     treeview.column("shipment_id", anchor=tk.CENTER, width=60)
     treeview.column("status", anchor=tk.CENTER, width=120)
@@ -341,11 +340,12 @@ def driver_shipments(root, username, password):
     treeview.pack()
 
     # Set up the columns of the treeview
-    treeview["columns"] = ("select", "shipment_id", "status", "delivery_time", "pickboxid", "locker_id")
+    treeview["columns"] = ("select", "shipment_id", "status", "latest_update", "delivery_time", "pickboxid", "locker_id")
     treeview.column("#0", width=0, stretch=tk.NO)
-    treeview.column("select", anchor=tk.CENTER, width=0)
+    treeview.column("select", anchor=tk.CENTER, width=0, minwidth=0)
     treeview.column("shipment_id", anchor=tk.CENTER, width=80)
     treeview.column("status", anchor=tk.CENTER, width=120)
+    treeview.column("latest_update", anchor=tk.CENTER, width=120)
     treeview.column("delivery_time", anchor=tk.CENTER, width=120)
     treeview.column("pickboxid", anchor=tk.CENTER, width=90)
     treeview.column("locker_id", anchor=tk.CENTER, width=90)
@@ -355,6 +355,7 @@ def driver_shipments(root, username, password):
     treeview.heading("select", text="", anchor=tk.CENTER)
     treeview.heading("shipment_id", text="Shipment ID", anchor=tk.CENTER)
     treeview.heading("status", text="Status", anchor=tk.CENTER)
+    treeview.heading("latest_update", text="Latest Update", anchor=tk.CENTER)
     treeview.heading("delivery_time", text="Delivery Time", anchor=tk.CENTER)
     treeview.heading("pickboxid", text="PickBox ID", anchor=tk.CENTER)
     treeview.heading("locker_id", text="Locker ID", anchor=tk.CENTER)
@@ -493,8 +494,6 @@ def generatePIN(phone):
         
     else:
         messagebox.showerror("Error", "No such registred phone in our system, double check your entered phone number")
-
-
 
 if __name__ == '__main__':
     main()
