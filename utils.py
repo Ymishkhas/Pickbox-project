@@ -1,10 +1,18 @@
 import atexit
 import sqlite3
 from datetime import datetime
+from twilio.rest import Client
 
+# Setting connection to database
 DB_PATH = 'C:/Users/youse/Desktop/tkinter/Database/pickbox.db'
 conn = sqlite3.connect(DB_PATH)
 c = conn.cursor()
+
+# Setting for SMS verefication messages using twilio
+account_sid = "AC19d4e303db95ae5a9598488bc652340b"
+auth_token = "a20cec9f1ca739d18da3839a4e98d978"
+sender_phone_number = "+12543183665"
+Client = Client(account_sid, auth_token)
 
 # Main Functions
 def is_valid_customer(phone):
@@ -91,6 +99,15 @@ def update_shipment_status(shipment_id, prev_status):
     conn.commit()
 
     return new_status
+
+def send_opt(phone, opt):
+    print("+"+phone)
+    message = Client.messages.create (
+        body=f"OPT Code:{opt}\nReason:Login - App",
+        from_=sender_phone_number,
+        to="+966580688210"
+    )
+    print(message.body)
 
 # Helper Functions
 def getCurrentTime():

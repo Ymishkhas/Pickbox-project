@@ -491,6 +491,7 @@ def generatePIN(phone):
         generatedPIN = random.randint(1000,9999)
         print("PIN:", generatedPIN)
         generatedPIN_phone = phone
+        # utils.send_opt(phone, generatedPIN)
         
     else:
         messagebox.showerror("Error", "No such registred phone in our system, double check your entered phone number")
