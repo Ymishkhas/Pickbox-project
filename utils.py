@@ -9,10 +9,10 @@ conn = sqlite3.connect(DB_PATH)
 c = conn.cursor()
 
 # Setting for SMS verefication messages using twilio
-account_sid = "AC19d4e303db95ae5a9598488bc652340b"
-auth_token = "a20cec9f1ca739d18da3839a4e98d978"
-sender_phone_number = "+12543183665"
-Client = Client(account_sid, auth_token)
+account_sid = "AC2d9cc846c54b1f676e528d492df22a40"
+auth_token = "d48d5fb415dedeaf08adc2ab152c3a92"
+sender_phone_number = "+13156233366"
+client = Client(account_sid, auth_token)
 
 # Main Functions
 def is_valid_customer(phone):
@@ -102,10 +102,10 @@ def update_shipment_status(shipment_id, prev_status):
 
 def send_opt(phone, opt):
     print("+"+phone)
-    message = Client.messages.create (
+    message = client.messages.create (
         body=f"OPT Code:{opt}\nReason:Login - App",
         from_=sender_phone_number,
-        to="+966580688210"
+        to="+966555411384"
     )
     print(message.body)
 

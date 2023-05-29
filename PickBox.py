@@ -490,6 +490,7 @@ def generatePIN(phone):
     if utils.is_valid_customer(phone):
         generatedPIN = random.randint(1000,9999)
         print("PIN:", generatedPIN)
+        messagebox.showinfo("SMS Message", f"OPT Code: {generatedPIN}\nReason: Login - App")
         generatedPIN_phone = phone
         # utils.send_opt(phone, generatedPIN)
         
